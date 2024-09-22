@@ -1,0 +1,36 @@
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+import base64
+
+# Function to generate a random AES key
+def generate_key():
+    return get_random_bytes(16)  # 128-bit key
+
+# Function to encrypt a message
+def encrypt_message(message, key):
+    cipher = AES.new(key, AES.MODE_CBC)
+    iv = cipher.iv
+    encrypted_message = cipher.encrypt(pad(message.encode(), AES.block_size))
+    return base64.b64encode(iv + encrypted_message).decode('utf-8')
+
+# Function to decrypt a message
+def decrypt_message(encrypted_message, key):
+    decoded_data = base64.b64decode(encrypted_message)
+    iv = decoded_data[:16]  # Extract the IV
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_message = unpad(cipher.decrypt(decoded_data[16:]), AES.block_size)
+    return decrypted_message.decode('utf-8')
+
+if __name__ == "__main__":
+    key = generate_key()
+    print(f"Generated Key: {base64.b64encode(key).decode('utf-8')}")
+
+    # Example usage
+    message = "Hello, this is a secret message!"
+    print(f"Original Message: {message}")
+
+    encrypted = encrypt_message(message, key)
+    print(f"Encrypted Message: {encrypted}")
+
+    decrypted = decrypt_message
